@@ -23,6 +23,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_hsvcolor_picker: ^0.0.1
   flutter_bluetooth_serial: ^0.2.0
 
 
