@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -34,6 +33,7 @@ class _ConectionPageState extends State<ConectionPage> {
   pageState _currentState = pageState.empty;
 
   List<BluetoothDevice> _devicesList = [];
+
   BluetoothDevice _device;
   bool _connecetd = false;
   bool _isButtonUnavailable = false;
@@ -148,19 +148,144 @@ class _ConectionPageState extends State<ConectionPage> {
                 await FlutterBluetoothSerial.instance.requestEnable();
               },
             ),
-          (_currentState == pageState.empty) ?
-            ElevatedButton(
-              onPressed: () async {
-                await getPairedDevices().then((value){
-                  print("Se refresco la lista");
-                  //show('Lista Refrescada');
-                });
-              },
-              child: Text('Refresca para ver dispositivos')
-            ) :
-            Text('Holaaa'),
+            Stack(
+              children: [
+                Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: Text('Dispositivos conectados'),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(9.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Dispositivo: ',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+
+                          ),
+                          DropdownButton(
+                            items: [],
+                            value: _devicesList.isNotEmpty ? _device : null,
+                          ),
+                          ElevatedButton(
+                            onPressed: _isButtonUnavailable
+                                ? null : null,
+                              //: _connecetd ? _disconect : _connect,
+                            child: Text(_connecetd ? 'Desconecta' : 'Conecta')
+                          )
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(15.0),
+                      child: Card(
+                        shape: RoundedRectangleBorder(
+                          side: new BorderSide(
+                            color: _deviceState == 0
+                                ? Colors.transparent
+                                : _deviceState == 1
+                                  ? Colors.green : Colors.red,
+                            width: 3,
+                          ),
+                          borderRadius: BorderRadius.circular(4.0),
+                        ),
+                        elevation: _deviceState == 0 ? 4 : 0,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  "Dispositivo 1",
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    color: _deviceState == 0
+                                      ? Colors.green[600] 
+                                      : Colors.red[600]
+                                  ),
+                                )
+                              ),
+                              ElevatedButton(
+                                onPressed: _connecetd
+                                  ? _sendOnMessageToBluetooth
+                                  : null,
+                                  child: Text("ON")
+                              ),
+                              ElevatedButton(
+                                onPressed: _connecetd
+                                ? _sendOnMessageToBluetooth
+                                : null,
+                                child: Text("OFF")
+                              ),                              
+                            ],
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+                Container(color: Colors.blue,)
+              ],
+            ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text("Si no lo encuentras, agrega otro dispositivo en configuración"),
+                    SizedBox(height: 15,),
+                    ElevatedButton(
+                      child: Text("Configuración de Bluetooth"),
+                      onPressed: () {
+                        FlutterBluetoothSerial.instance.openSettings();
+                      },
+                    )
+                  ],
+                ),
+              ),
+            )
+          )
         ],
       ),
     );
   }
+
+  List<DropdownMenuItem<BluetoothDevice>> _getDeviceItems(){
+    List<DropdownMenuItem<BluetoothDevice>> items = [];
+    if (_devicesList.isEmpty) {
+      items.add(DropdownMenuItem(
+        child: Text('NONE'),
+      ));
+    } else {
+      _devicesList.forEach((device) {
+        items.add(DropdownMenuItem(
+          child: Text(device.name),
+          value: device,
+        ));
+      });
+    }
+    return items;
+  }
+
+  void _sendOnMessageToBluetooth() async {
+    connection.output.add(utf8.encode("1"+"\r\n"));
+    await connection.output.allSent;
+    show("Dispositivo encendido");
+    setState(() {
+      _deviceState = 1;
+    });
+  }
+  
+  Future show(String message, {Duration duration: const Duration(seconds: 3)}) async{
+    await new Future.delayed(new Duration(milliseconds: 100));
+    _scaffoldKey.currentState.showSnackBar(
+      new SnackBar(content: new Text(message), duration: duration,)
+    );
+  }
+
 }
