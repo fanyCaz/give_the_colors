@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:give_the_colors/bluetooth.dart';
-import 'package:give_the_colors/conection_page.dart';
 
 void main() {
   runApp(MyApp());
@@ -14,7 +13,6 @@ class MyApp extends StatelessWidget {
       title: 'Colores',
       initialRoute: '/',
       routes: {
-        '/conection': (context) => ConectionPage(),
         '/bluetooth': (context) => BluetoothApp()
       },
       theme: ThemeData(

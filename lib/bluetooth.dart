@@ -135,7 +135,7 @@ class _BluetoothAppState extends State<BluetoothApp> {
     return Scaffold(
         key: _scaffoldKey,
         appBar: AppBar(
-          title: Text("Flutter Bluetooth"),
+          title: Text("Give the color!"),
           backgroundColor: Colors.deepPurple,
           actions: <Widget>[
             FlatButton.icon(
@@ -144,7 +144,7 @@ class _BluetoothAppState extends State<BluetoothApp> {
                 color: Colors.white,
               ),
               label: Text(
-                "Refresh",
+                "Actualizar",
                 style: TextStyle(
                   color: Colors.white,
                 ),
@@ -158,13 +158,13 @@ class _BluetoothAppState extends State<BluetoothApp> {
                 // while the app is running, user can refresh
                 // the paired devices list.
                 await getPairedDevices().then((_) {
-                  show('Device list refreshed');
+                  show('Lista actualizada');
                 });
               },
             ),
           ],
         ),
-        body: Container(
+        body: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.max,
             children: <Widget>[
@@ -238,10 +238,10 @@ class _BluetoothAppState extends State<BluetoothApp> {
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: <Widget>[
                             Text(
-                              'Dispositivo:',
+                              '->',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                               ),
@@ -277,13 +277,14 @@ class _BluetoothAppState extends State<BluetoothApp> {
                                         backgroundColor: this.color,
                                       ),
                                       new Divider(),
-
-                                      ///---------------------------------
                                       new RGBPicker(
                                         color: this.color,
-                                        onChanged: (value)=>super.setState(()=>this.onChanged(value)),
+                                        onChanged: (value)=>
+                                          super.setState(() {
+                                            this.onChanged(value);
+                                          }
+                                        ),
                                       )
-                                      ///---------------------------------
                                     ]
                                 )
                             )
@@ -310,28 +311,25 @@ class _BluetoothAppState extends State<BluetoothApp> {
                               children: <Widget>[
                                 Expanded(
                                   child: Text(
-                                    "DEVICE 1",
+                                    "¿Tu color está listo?",
                                     style: TextStyle(
                                       fontSize: 20,
                                       color: _deviceState == 0
-                                          ? colors['neutralTextColor']
-                                          : _deviceState == 1
-                                          ? colors['onTextColor']
-                                          : colors['offTextColor'],
+                                        ? colors['neutralTextColor']
+                                        : _deviceState == 1
+                                        ? colors['onTextColor']
+                                        : colors['offTextColor'],
                                     ),
                                   ),
                                 ),
                                 FlatButton(
                                   onPressed: _connected
-                                      ? _sendOnMessageToBluetooth
-                                      : null,
-                                  child: Text("ON"),
-                                ),
-                                FlatButton(
-                                  onPressed: _connected
-                                      ? _sendOffMessageToBluetooth
-                                      : null,
-                                  child: Text("OFF"),
+                                    ? _sendOnMessageToBluetooth
+                                    : null,
+                                  child: Text(
+                                    "¡Enviar!",
+                                    style: TextStyle(color: Colors.deepPurple),
+                                  ),
                                 ),
                               ],
                             ),
@@ -376,7 +374,7 @@ class _BluetoothAppState extends State<BluetoothApp> {
       _isButtonUnavailable = true;
     });
     if (_device == null) {
-      show('No device selected');
+      show('No seleccionaste una opción');
     } else {
       if (!isConnected) {
         await BluetoothConnection.toAddress(_device.address)
@@ -401,38 +399,12 @@ class _BluetoothAppState extends State<BluetoothApp> {
           print('Cannot connect, exception occurred');
           print(error);
         });
-        show('Device connected');
+        show('Dispositivo conectado');
 
         setState(() => _isButtonUnavailable = false);
       }
     }
   }
-
-  // void _onDataReceived(Uint8List data) {
-  //   // Allocate buffer for parsed data
-  //   int backspacesCounter = 0;
-  //   data.forEach((byte) {
-  //     if (byte == 8 || byte == 127) {
-  //       backspacesCounter++;
-  //     }
-  //   });
-  //   Uint8List buffer = Uint8List(data.length - backspacesCounter);
-  //   int bufferIndex = buffer.length;
-
-  //   // Apply backspace control character
-  //   backspacesCounter = 0;
-  //   for (int i = data.length - 1; i >= 0; i--) {
-  //     if (data[i] == 8 || data[i] == 127) {
-  //       backspacesCounter++;
-  //     } else {
-  //       if (backspacesCounter > 0) {
-  //         backspacesCounter--;
-  //       } else {
-  //         buffer[--bufferIndex] = data[i];
-  //       }
-  //     }
-  //   }
-  // }
 
   // Method to disconnect bluetooth
   void _disconnect() async {
@@ -442,7 +414,7 @@ class _BluetoothAppState extends State<BluetoothApp> {
     });
 
     await connection.close();
-    show('Device disconnected');
+    show('Dispositivo desconectado');
     if (!connection.isConnected) {
       setState(() {
         _connected = false;
@@ -454,9 +426,9 @@ class _BluetoothAppState extends State<BluetoothApp> {
   // Method to send message,
   // for turning the Bluetooth device on
   void _sendOnMessageToBluetooth() async {
-    connection.output.add(utf8.encode("1" + "\r\n"));
+    connection.output.add(utf8.encode("${color.red},${color.green},${color.blue} \n"));
     await connection.output.allSent;
-    show('Device Turned On');
+    show('Enviado');
     setState(() {
       _deviceState = 1; // device on
     });
