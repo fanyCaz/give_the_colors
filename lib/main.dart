@@ -16,9 +16,10 @@ class MyApp extends StatelessWidget {
         '/bluetooth': (context) => BluetoothApp()
       },
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.deepPurple,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
+      debugShowCheckedModeBanner: false,
       home: MyHomePage(),
     );
   }
@@ -44,29 +45,31 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Container(
         child: Column(
           children: [
-            Row(
-              children: [
-                //blutooth logo
-                Text('Conectar')
-              ],
-            ),
-            Row(
-              children: [
-                Text('Conexión con ....')
-              ]
-            ),
-            Row(
-              children: [
-                Text('Color Picker')
-              ],
+            Padding(
+              padding: const EdgeInsets.only(bottom: 15.0, top: 15.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  //blutooth logo
+                  Text('Bienvenido a Color Mixer',
+                    style: TextStyle(
+                        fontSize: 18, color: Colors.indigo, fontWeight: FontWeight.bold
+                    ),
+                    textAlign: TextAlign.center
+                  )
+                ],
+              ),
             ),
             ElevatedButton(
               onPressed: (){
                 Navigator.pushNamed(context,'/bluetooth');
               },
-              child: Text('Conecta un dispositivo')
+              child: Text('¡Empieza a combinar!'),
+              style: ElevatedButton.styleFrom(
+                minimumSize: Size(MediaQuery.of(context).size.width * .3,100),
+                primary: Colors.deepPurple,
+              ),
             ),
-            Text('Hola')
           ],
         )
       )

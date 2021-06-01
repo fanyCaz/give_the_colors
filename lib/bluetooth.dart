@@ -56,12 +56,7 @@ class _BluetoothAppState extends State<BluetoothApp> {
 
     _deviceState = 0; // neutral
 
-    // If the bluetooth of the device is not enabled,
-    // then request permission to turn on bluetooth
-    // as the app starts up
     enableBluetooth();
-
-    // Listen for further state changes
     FlutterBluetoothSerial.instance
         .onStateChanged()
         .listen((BluetoothState state) {
@@ -92,8 +87,6 @@ class _BluetoothAppState extends State<BluetoothApp> {
     // Retrieving the current Bluetooth state
     _bluetoothState = await FlutterBluetoothSerial.instance.state;
 
-    // If the bluetooth is off, then turn it on first
-    // and then retrieve the devices that are paired.
     if (_bluetoothState == BluetoothState.STATE_OFF) {
       await FlutterBluetoothSerial.instance.requestEnable();
       await getPairedDevices();
@@ -104,8 +97,6 @@ class _BluetoothAppState extends State<BluetoothApp> {
     return false;
   }
 
-  // For retrieving and storing the paired devices
-  // in a list.
   Future<void> getPairedDevices() async {
     List<BluetoothDevice> devices = [];
 
@@ -116,20 +107,17 @@ class _BluetoothAppState extends State<BluetoothApp> {
       print("Error");
     }
 
-    // It is an error to call [setState] unless [mounted] is true.
     if (!mounted) {
       return;
     }
 
-    // Store the [devices] list in the [_devicesList] for accessing
-    // the list outside this class
     setState(() {
       _devicesList = devices;
     });
   }
   Color color =Colors.blue;
   void onChanged(Color value) => this.color=value;
-  // Now, its time to build the UI
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -252,7 +240,7 @@ class _BluetoothAppState extends State<BluetoothApp> {
                                   setState(() => _device = value),
                               value: _devicesList.isNotEmpty ? _device : null,
                             ),
-                            RaisedButton(
+                            ElevatedButton(
                               onPressed: _isButtonUnavailable
                                   ? null
                                   : _connected ? _disconnect : _connect,
@@ -336,6 +324,42 @@ class _BluetoothAppState extends State<BluetoothApp> {
                           ),
                         ),
                       ),
+                      Padding(
+                        padding: EdgeInsets.only(right: 5.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            ElevatedButton.icon(
+                              onPressed:() {
+                                _sendOnCleanToBluetooth();
+                              },
+                              icon: Icon(Icons.cleaning_services),
+                              label: Text(
+                                "Limpiar",
+                                style: TextStyle(color: Colors.white, fontSize: 20),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                minimumSize: Size(MediaQuery.of(context).size.width * .3,100),
+                                primary: Colors.indigo,
+                              ),
+                            ),
+                            ElevatedButton.icon(
+                              onPressed:() {
+                                _sendOnChargeToBluetooth();
+                              },
+                              icon: Icon(Icons.format_color_fill),
+                              label: Text(
+                                "Cargar",
+                                style: TextStyle(color: Colors.white, fontSize: 20),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                minimumSize: Size(MediaQuery.of(context).size.width * .3,100),
+                                primary: Colors.indigo,
+                              ),
+                            ),
+                          ],
+                        )
+                      ),
                     ],
                   ),
                   Container(
@@ -355,7 +379,7 @@ class _BluetoothAppState extends State<BluetoothApp> {
     List<DropdownMenuItem<BluetoothDevice>> items = [];
     if (_devicesList.isEmpty) {
       items.add(DropdownMenuItem(
-        child: Text('NONE'),
+        child: Text('----'),
       ));
     } else {
       _devicesList.forEach((device) {
@@ -434,12 +458,32 @@ class _BluetoothAppState extends State<BluetoothApp> {
     });
   }
 
-  // Method to send message,
+  void _sendOnCleanToBluetooth() async {
+    connection.output.add(
+        utf8.encode("0 \n"));
+    await connection.output.allSent;
+    show('Enviado');
+    setState(() {
+      _deviceState = 1; // device on
+    });
+  }
+
+  void _sendOnChargeToBluetooth() async {
+    connection.output.add(
+        utf8.encode("1 \n"));
+    await connection.output.allSent;
+    show('Enviado');
+    setState(() {
+      _deviceState = 1; // device on
+    });
+  }
+
+    // Method to send message,
   // for turning the Bluetooth device off
   void _sendOffMessageToBluetooth() async {
     connection.output.add(utf8.encode("0" + "\r\n"));
     await connection.output.allSent;
-    show('Device Turned Off');
+    show('Dispositivo Desconectado');
     setState(() {
       _deviceState = -1; // device off
     });
