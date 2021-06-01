@@ -122,135 +122,167 @@ class _ConectionPageState extends State<ConectionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+
       appBar: AppBar(
         title: Text('Conexiones con Blutooth'),
-      ),
-      body: Column(
-        children: [
-          (_bluetoothState.isEnabled) ?
-            ElevatedButton.icon(
-              style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all<Color>(Colors.indigoAccent)
-              ),
-              icon: Icon(Icons.bluetooth),
-              label: Text('Apaga tu Bluetooth'),
-              onPressed: ()async{
-                await FlutterBluetoothSerial.instance.requestDisable();
-              },
-            ) :
-            ElevatedButton.icon(
-              style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all<Color>(Colors.indigoAccent)
-              ),
-              icon: Icon(Icons.bluetooth),
-              label: Text('Enciende tu Bluetooth'),
-              onPressed: () async {
-                await FlutterBluetoothSerial.instance.requestEnable();
-              },
-            ),
-            Stack(
-              children: [
-                Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 10),
-                      child: Text('Dispositivos conectados'),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(9.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Dispositivo: ',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-
-                          ),
-                          DropdownButton(
-                            items: [],
-                            value: _devicesList.isNotEmpty ? _device : null,
-                          ),
-                          ElevatedButton(
-                            onPressed: _isButtonUnavailable
-                                ? null : null,
-                              //: _connecetd ? _disconect : _connect,
-                            child: Text(_connecetd ? 'Desconecta' : 'Conecta')
-                          )
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(15.0),
-                      child: Card(
-                        shape: RoundedRectangleBorder(
-                          side: new BorderSide(
-                            color: _deviceState == 0
-                                ? Colors.transparent
-                                : _deviceState == 1
-                                  ? Colors.green : Colors.red,
-                            width: 3,
-                          ),
-                          borderRadius: BorderRadius.circular(4.0),
-                        ),
-                        elevation: _deviceState == 0 ? 4 : 0,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  "Dispositivo 1",
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    color: _deviceState == 0
-                                      ? Colors.green[600] 
-                                      : Colors.red[600]
-                                  ),
-                                )
-                              ),
-                              ElevatedButton(
-                                onPressed: _connecetd
-                                  ? _sendOnMessageToBluetooth
-                                  : null,
-                                  child: Text("ON")
-                              ),
-                              ElevatedButton(
-                                onPressed: _connecetd
-                                ? _sendOnMessageToBluetooth
-                                : null,
-                                child: Text("OFF")
-                              ),                              
-                            ],
-                          ),
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-                Container(color: Colors.blue,)
-              ],
-            ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text("Si no lo encuentras, agrega otro dispositivo en configuración"),
-                    SizedBox(height: 15,),
-                    ElevatedButton(
-                      child: Text("Configuración de Bluetooth"),
-                      onPressed: () {
-                        FlutterBluetoothSerial.instance.openSettings();
-                      },
-                    )
-                  ],
-                ),
-              ),
-            )
+        backgroundColor: Colors.deepOrangeAccent,
+        actions: [
+          FlatButton.icon(
+            onPressed: () async{
+              await getPairedDevices().then((_){
+                show('Lista refrescada');
+              });
+            },
+            label: Text('Refrescar'),
+            icon: Icon(Icons.refresh, color: Colors.white,),
+            splashColor: Colors.deepPurple,
           )
         ],
+      ),
+      body: Container(
+        child: Column(
+          children: [
+            (_bluetoothState.isEnabled) ?
+              ElevatedButton.icon(
+                style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all<Color>(Colors.indigoAccent)
+                ),
+                icon: Icon(Icons.bluetooth),
+                label: Text('Apaga tu Bluetooth'),
+                onPressed: () async{
+                  await FlutterBluetoothSerial.instance.requestDisable();
+                  await getPairedDevices();
+                  _isButtonUnavailable = false;
+                  if(_connecetd){
+                    _disconnect();
+                  }
+                  setState(() {
+
+                  });
+                },
+              ) :
+              ElevatedButton.icon(
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all<Color>(Colors.indigoAccent)
+                ),
+                icon: Icon(Icons.bluetooth),
+                label: Text('Enciende tu Bluetooth'),
+                onPressed: () async {
+                  await FlutterBluetoothSerial.instance.requestEnable();
+                  await getPairedDevices();
+                  _isButtonUnavailable = false;
+                  if(_connecetd){
+                    _disconnect();
+                  }
+                  setState(() {
+
+                  });
+                },
+              ),
+              Stack(
+                children: [
+                  Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 10),
+                        child: Text('Dispositivos conectados'),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(9.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Dispositivo: ',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+
+                            ),
+                            DropdownButton(
+                              items: [],
+                              value: _devicesList.isNotEmpty ? _device : null,
+                            ),
+                            ElevatedButton(
+                              onPressed: _isButtonUnavailable
+                                  ? null : null,
+                                //: _connecetd ? _disconect : _connect,
+                              child: Text(_connecetd ? 'Desconecta' : 'Conecta')
+                            )
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(15.0),
+                        child: Card(
+                          shape: RoundedRectangleBorder(
+                            side: new BorderSide(
+                              color: _deviceState == 0
+                                  ? Colors.transparent
+                                  : _deviceState == 1
+                                    ? Colors.green : Colors.red,
+                              width: 3,
+                            ),
+                            borderRadius: BorderRadius.circular(4.0),
+                          ),
+                          elevation: _deviceState == 0 ? 4 : 0,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    "Dispositivo 1",
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      color: _deviceState == 0
+                                        ? Colors.green[600]
+                                        : Colors.red[600]
+                                    ),
+                                  )
+                                ),
+                                ElevatedButton(
+                                  onPressed: _connecetd
+                                    ? _sendOnMessageToBluetooth
+                                    : null,
+                                    child: Text("ON")
+                                ),
+                                ElevatedButton(
+                                  onPressed: _connecetd
+                                  ? _sendOffMessageToBluetooth
+                                  : null,
+                                  child: Text("OFF")
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                  Container(color: Colors.blue,)
+                ],
+              ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text("Si no lo encuentras, agrega otro dispositivo en configuración"),
+                      SizedBox(height: 15,),
+                      ElevatedButton(
+                        child: Text("Configuración de Bluetooth"),
+                        onPressed: () {
+                          FlutterBluetoothSerial.instance.openSettings();
+                        },
+                      )
+                    ],
+                  ),
+                ),
+              )
+            )
+          ],
+        ),
       ),
     );
   }
@@ -272,6 +304,61 @@ class _ConectionPageState extends State<ConectionPage> {
     return items;
   }
 
+  void _connect() async{
+    setState(() {
+      _isButtonUnavailable = true;
+    });
+    if(_device == null){
+      show('Ningún dispositivo seleccionado');
+    }else{
+      if(!isConnected){
+        await BluetoothConnection.toAddress(_device.address)
+          .then((conn){
+            print("Dispositivo conectado");
+            connection = conn;
+            setState(() {
+              _connecetd = true;
+            });
+          connection.input.listen(null).onDone(() {
+            if(isDisconnecting){
+              print("Se ha desconectado");
+            }else{
+              print("Se desconectó el dispositivo");
+            }
+            if(this.mounted){
+              setState(() {
+
+              });
+            }
+          });
+        }).catchError((error) {
+          print("No se puede conectar, hay algo incorrecto");
+          print(error);
+        });
+        show('Dispositivo conectado');
+        setState(() {
+          _isButtonUnavailable = false;
+        });
+      }
+    }
+  }
+
+  void _disconnect() async {
+    setState(() {
+      _isButtonUnavailable = true;
+      _deviceState = 0;
+    });
+
+    await connection.close();
+    show('Dispositivo desconectado');
+    if(!connection.isConnected){
+      setState(() {
+        _connecetd = false;
+        _isButtonUnavailable = false;
+      });
+    }
+  }
+
   void _sendOnMessageToBluetooth() async {
     connection.output.add(utf8.encode("1"+"\r\n"));
     await connection.output.allSent;
@@ -280,12 +367,24 @@ class _ConectionPageState extends State<ConectionPage> {
       _deviceState = 1;
     });
   }
+
+  void _sendOffMessageToBluetooth() async {
+    connection.output.add(utf8.encode("0"+"\r\n"));
+    await connection.output.allSent;
+    show("Dispositivo apagado");
+    setState(() {
+      _deviceState = -1;
+    });
+  }
   
   Future show(String message, {Duration duration: const Duration(seconds: 3)}) async{
     await new Future.delayed(new Duration(milliseconds: 100));
-    _scaffoldKey.currentState.showSnackBar(
-      new SnackBar(content: new Text(message), duration: duration,)
-    );
+    //final snackbar = SnackBar(content: new Text(message),);
+    //ScaffoldMessesnger.of()
+    print(message);
+    /*_scaffoldKey.currentState.showSnackBar(
+      new SnackBar(content:  Text(message), duration: duration,)
+    );*/
   }
 
 }

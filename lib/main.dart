@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:give_the_colors/bluetooth.dart';
 import 'package:give_the_colors/conection_page.dart';
 
 void main() {
@@ -14,6 +15,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/conection': (context) => ConectionPage(),
+        '/bluetooth': (context) => BluetoothApp()
       },
       theme: ThemeData(
         primarySwatch: Colors.blue,
@@ -62,7 +64,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             ElevatedButton(
               onPressed: (){
-                Navigator.pushNamed(context,'/conection');
+                Navigator.pushNamed(context,'/bluetooth');
               },
               child: Text('Conecta un dispositivo')
             ),
