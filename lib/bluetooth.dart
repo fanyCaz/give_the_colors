@@ -454,7 +454,7 @@ class _BluetoothAppState extends State<BluetoothApp> {
   // for turning the Bluetooth device on
   void _sendOnMessageToBluetooth() async {
     connection.output
-        .add(utf8.encode("M${color.red},${color.green},${color.blue}\n"));
+        .add(utf8.encode("${color.red},${color.green},${color.blue}\n"));
     await connection.output.allSent;
     show('Enviado');
     setState(() {
