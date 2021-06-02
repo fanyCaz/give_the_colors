@@ -463,7 +463,7 @@ class _BluetoothAppState extends State<BluetoothApp> {
   }
 
   void _sendOnCleanToBluetooth() async {
-    connection.output.add(utf8.encode("L\n"));
+    connection.output.add(utf8.encode("0 \n"));
     await connection.output.allSent;
     show('Enviado');
     setState(() {
@@ -472,7 +472,7 @@ class _BluetoothAppState extends State<BluetoothApp> {
   }
 
   void _sendOnChargeToBluetooth() async {
-    connection.output.add(utf8.encode("C\n"));
+    connection.output.add(utf8.encode("1 \n"));
     await connection.output.allSent;
     show('Enviado');
     setState(() {
