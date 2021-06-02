@@ -116,271 +116,277 @@ class _BluetoothAppState extends State<BluetoothApp> {
       _devicesList = devices;
     });
   }
-  Color color =Colors.blue;
-  void onChanged(Color value) => this.color=value;
+
+  Color color = Colors.blue;
+  void onChanged(Color value) => this.color = value;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        key: _scaffoldKey,
-        appBar: AppBar(
-          title: Text("Give the color!"),
-          backgroundColor: Colors.deepPurple,
-          actions: <Widget>[
-            FlatButton.icon(
-              icon: Icon(
-                Icons.refresh,
+      key: _scaffoldKey,
+      appBar: AppBar(
+        title: Text("Give the color!"),
+        backgroundColor: Colors.deepPurple,
+        actions: <Widget>[
+          FlatButton.icon(
+            icon: Icon(
+              Icons.refresh,
+              color: Colors.white,
+            ),
+            label: Text(
+              "Actualizar",
+              style: TextStyle(
                 color: Colors.white,
               ),
-              label: Text(
-                "Actualizar",
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30),
-              ),
-              splashColor: Colors.deepPurple,
-              onPressed: () async {
-                // So, that when new devices are paired
-                // while the app is running, user can refresh
-                // the paired devices list.
-                await getPairedDevices().then((_) {
-                  show('Lista actualizada');
-                });
-              },
             ),
-          ],
-        ),
-        body: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            children: <Widget>[
-              Visibility(
-                visible: _isButtonUnavailable &&
-                    _bluetoothState == BluetoothState.STATE_ON,
-                child: LinearProgressIndicator(
-                  backgroundColor: Colors.yellow,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
-                ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30),
+            ),
+            splashColor: Colors.deepPurple,
+            onPressed: () async {
+              // So, that when new devices are paired
+              // while the app is running, user can refresh
+              // the paired devices list.
+              await getPairedDevices().then((_) {
+                show('Lista actualizada');
+              });
+            },
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          children: <Widget>[
+            Visibility(
+              visible: _isButtonUnavailable &&
+                  _bluetoothState == BluetoothState.STATE_ON,
+              child: LinearProgressIndicator(
+                backgroundColor: Colors.yellow,
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
               ),
-              Padding(
-                padding: const EdgeInsets.all(10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
-                    (_bluetoothState.isEnabled) ?
-                    ElevatedButton.icon(
-                      style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(Colors.indigoAccent)
-                      ),
-                      icon: Icon(Icons.bluetooth),
-                      label: Text('Apaga tu Bluetooth'),
-                      onPressed: () async{
-                        await FlutterBluetoothSerial.instance.requestDisable();
-                        await getPairedDevices();
-                        _isButtonUnavailable = false;
-                        if(_connected){
-                          _disconnect();
-                        }
-                        setState(() {
-
-                        });
-                      },
-                    ) :
-                    ElevatedButton.icon(
-                      style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(Colors.indigoAccent)
-                      ),
-                      icon: Icon(Icons.bluetooth),
-                      label: Text('Enciende tu Bluetooth'),
-                      onPressed: () async {
-                        await FlutterBluetoothSerial.instance.requestEnable();
-                        await getPairedDevices();
-                        _isButtonUnavailable = false;
-                        if(_connected){
-                          _disconnect();
-                        }
-                        setState(() {
-
-                        });
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              Stack(
+            ),
+            Padding(
+              padding: const EdgeInsets.all(10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
-                  Column(
-                    children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.only(top: 10),
-                        child: Text(
-                          "Elige el dispositivo a conectar",
-                          style: TextStyle(
-                            fontSize: 18, color: Colors.indigo, fontWeight: FontWeight.bold
+                  (_bluetoothState.isEnabled)
+                      ? ElevatedButton.icon(
+                          style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                  Colors.indigoAccent)),
+                          icon: Icon(Icons.bluetooth),
+                          label: Text('Apaga tu Bluetooth'),
+                          onPressed: () async {
+                            await FlutterBluetoothSerial.instance
+                                .requestDisable();
+                            await getPairedDevices();
+                            _isButtonUnavailable = false;
+                            if (_connected) {
+                              _disconnect();
+                            }
+                            setState(() {});
+                          },
+                        )
+                      : ElevatedButton.icon(
+                          style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                  Colors.indigoAccent)),
+                          icon: Icon(Icons.bluetooth),
+                          label: Text('Enciende tu Bluetooth'),
+                          onPressed: () async {
+                            await FlutterBluetoothSerial.instance
+                                .requestEnable();
+                            await getPairedDevices();
+                            _isButtonUnavailable = false;
+                            if (_connected) {
+                              _disconnect();
+                            }
+                            setState(() {});
+                          },
+                        ),
+                ],
+              ),
+            ),
+            Stack(
+              children: <Widget>[
+                Column(
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: Text(
+                        "Elige el dispositivo a conectar",
+                        style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.indigo,
+                            fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: <Widget>[
+                          Text(
+                            '->',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                          textAlign: TextAlign.center,
-                        ),
+                          DropdownButton(
+                            items: _getDeviceItems(),
+                            onChanged: (value) =>
+                                setState(() => _device = value),
+                            value: _devicesList.isNotEmpty ? _device : null,
+                          ),
+                          ElevatedButton(
+                            onPressed: _isButtonUnavailable
+                                ? null
+                                : _connected
+                                    ? _disconnect
+                                    : _connect,
+                            child:
+                                Text(_connected ? 'Desconectar' : 'Conectar'),
+                          ),
+                        ],
                       ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: <Widget>[
-                            Text(
-                              '->',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            DropdownButton(
-                              items: _getDeviceItems(),
-                              onChanged: (value) =>
-                                  setState(() => _device = value),
-                              value: _devicesList.isNotEmpty ? _device : null,
-                            ),
-                            ElevatedButton(
-                              onPressed: _isButtonUnavailable
-                                  ? null
-                                  : _connected ? _disconnect : _connect,
-                              child:
-                              Text(_connected ? 'Desconectar' : 'Conectar'),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(15.0),
-                        child: Card(
-                            shape: new RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(0.0))),
-                            elevation: 2.0,
-                            child: new Padding(
-                                padding: const EdgeInsets.all(10),
-                                child: new Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: <Widget>[
-                                      new FloatingActionButton(
-                                        onPressed: (){},
-                                        backgroundColor: this.color,
-                                      ),
-                                      new Divider(),
-                                      new RGBPicker(
-                                        color: this.color,
-                                        onChanged: (value)=>
-                                          super.setState(() {
-                                            this.onChanged(value);
-                                          }
-                                        ),
-                                      )
-                                    ]
-                                )
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(15.0),
+                      child: Card(
+                        shape: new RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(0.0))),
+                        elevation: 2.0,
+                        child: new Padding(
+                            padding: const EdgeInsets.all(10),
+                            child: new Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: <Widget>[
+                                  new FloatingActionButton(
+                                    onPressed: () {},
+                                    backgroundColor: this.color,
+                                  ),
+                                  new Divider(),
+                                  new RGBPicker(
+                                    color: this.color,
+                                    onChanged: (value) => super.setState(() {
+                                      this.onChanged(value);
+                                    }),
+                                  )
+                                ]
+                              )
                             )
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: TextField(
-                          decoration: new InputDecoration(labelText: '¿Cuántos mililitros quieres?'),
-                          keyboardType: TextInputType.number,
-                          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                          controller: mililitrosController,
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Card(
-                          shape: RoundedRectangleBorder(
-                            side: new BorderSide(
-                              color: _deviceState == 0
-                                  ? colors['neutralBorderColor']
-                                  : _deviceState == 1
-                                  ? colors['onBorderColor']
-                                  : colors['offBorderColor'],
-                              width: 3,
-                            ),
-                            borderRadius: BorderRadius.circular(4.0),
                           ),
-                          elevation: _deviceState == 0 ? 4 : 0,
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              children: <Widget>[
-                                Expanded(
-                                  child: Text(
-                                    "¿Tu color está listo?",
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      color: _deviceState == 0
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: TextField(
+                        decoration: new InputDecoration(labelText: '¿Cuántos mililitros quieres?'),
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                        controller: mililitrosController,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Card(
+                        shape: RoundedRectangleBorder(
+                          side: new BorderSide(
+                            color: _deviceState == 0
+                                ? colors['neutralBorderColor']
+                                : _deviceState == 1
+                                    ? colors['onBorderColor']
+                                    : colors['offBorderColor'],
+                            width: 3,
+                          ),
+                          borderRadius: BorderRadius.circular(4.0),
+                        ),
+                        elevation: _deviceState == 0 ? 4 : 0,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            children: <Widget>[
+                              Expanded(
+                                child: Text(
+                                  "¿Tu color está listo?",
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    color: _deviceState == 0
                                         ? colors['neutralTextColor']
                                         : _deviceState == 1
-                                        ? colors['onTextColor']
-                                        : colors['offTextColor'],
-                                    ),
+                                            ? colors['onTextColor']
+                                            : colors['offTextColor'],
                                   ),
                                 ),
-                                FlatButton(
-                                  onPressed: _connected
+                              ),
+                              FlatButton(
+                                onPressed: _connected
                                     ? _sendOnMessageToBluetooth
                                     : null,
-                                  child: Text(
-                                    "¡Enviar!",
-                                    style: TextStyle(color: Colors.deepPurple),
-                                  ),
+                                child: Text(
+                                  "¡Enviar!",
+                                  style: TextStyle(color: Colors.deepPurple),
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
-                      Padding(
+                    ),
+                    Padding(
                         padding: EdgeInsets.only(right: 5.0),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             ElevatedButton.icon(
-                              onPressed:() {
+                              onPressed: () {
                                 _sendOnCleanToBluetooth();
                               },
                               icon: Icon(Icons.cleaning_services),
                               label: Text(
                                 "Limpiar",
-                                style: TextStyle(color: Colors.white, fontSize: 20),
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 20),
                               ),
                               style: ElevatedButton.styleFrom(
-                                minimumSize: Size(MediaQuery.of(context).size.width * .3,100),
+                                minimumSize: Size(
+                                    MediaQuery.of(context).size.width * .3,
+                                    100),
                                 primary: Colors.indigo,
                               ),
                             ),
                             ElevatedButton.icon(
-                              onPressed:() {
+                              onPressed: () {
                                 _sendOnChargeToBluetooth();
                               },
                               icon: Icon(Icons.format_color_fill),
                               label: Text(
                                 "Cargar",
-                                style: TextStyle(color: Colors.white, fontSize: 20),
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 20),
                               ),
                               style: ElevatedButton.styleFrom(
-                                minimumSize: Size(MediaQuery.of(context).size.width * .3,100),
+                                minimumSize: Size(
+                                    MediaQuery.of(context).size.width * .3,
+                                    100),
                                 primary: Colors.indigo,
                               ),
                             ),
                           ],
-                        )
-                      ),
-                    ],
-                  ),
-                  Container(
-                    color: Colors.blue,
-                  ),
-                ],
-              ),
-            ],
-          ),
+                        )),
+                  ],
+                ),
+                Container(
+                  color: Colors.blue,
+                ),
+              ],
+            ),
+          ],
         ),
-
+      ),
     );
   }
 
@@ -479,8 +485,7 @@ class _BluetoothAppState extends State<BluetoothApp> {
   }
 
   void _sendOnCleanToBluetooth() async {
-    connection.output.add(
-        utf8.encode("0 \n"));
+    connection.output.add(utf8.encode("0 \n"));
     await connection.output.allSent;
     show('Enviado');
     setState(() {
@@ -489,8 +494,7 @@ class _BluetoothAppState extends State<BluetoothApp> {
   }
 
   void _sendOnChargeToBluetooth() async {
-    connection.output.add(
-        utf8.encode("1 \n"));
+    connection.output.add(utf8.encode("1 \n"));
     await connection.output.allSent;
     show('Enviado');
     setState(() {
@@ -498,7 +502,7 @@ class _BluetoothAppState extends State<BluetoothApp> {
     });
   }
 
-    // Method to send message,
+  // Method to send message,
   // for turning the Bluetooth device off
   void _sendOffMessageToBluetooth() async {
     connection.output.add(utf8.encode("0" + "\r\n"));
@@ -512,9 +516,9 @@ class _BluetoothAppState extends State<BluetoothApp> {
   // Method to show a Snackbar,
   // taking message as the text
   Future show(
-      String message, {
-        Duration duration: const Duration(seconds: 3),
-      }) async {
+    String message, {
+    Duration duration: const Duration(seconds: 3),
+  }) async {
     await new Future.delayed(new Duration(milliseconds: 100));
     _scaffoldKey.currentState.showSnackBar(
       new SnackBar(
