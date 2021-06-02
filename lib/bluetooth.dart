@@ -34,10 +34,11 @@ class _BluetoothAppState extends State<BluetoothApp> {
     'neutralTextColor': Colors.blue,
   };
 
+
+  final mililitrosController = TextEditingController();
   // To track whether the device is still connected to Bluetooth
   bool get isConnected => connection != null && connection.isConnected;
 
-  // Define some variables, which will be required later
   List<BluetoothDevice> _devicesList = [];
   BluetoothDevice _device;
   bool _connected = false;
@@ -279,6 +280,15 @@ class _BluetoothAppState extends State<BluetoothApp> {
                         ),
                       ),
                       Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: TextField(
+                          decoration: new InputDecoration(labelText: '¿Cuántos mililitros quieres?'),
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                          controller: mililitrosController,
+                        ),
+                      ),
+                      Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Card(
                           shape: RoundedRectangleBorder(
@@ -450,12 +460,22 @@ class _BluetoothAppState extends State<BluetoothApp> {
   // Method to send message,
   // for turning the Bluetooth device on
   void _sendOnMessageToBluetooth() async {
-    connection.output.add(utf8.encode("${color.red},${color.green},${color.blue} \n"));
-    await connection.output.allSent;
-    show('Enviado');
-    setState(() {
-      _deviceState = 1; // device on
-    });
+    print(mililitrosController.text);
+    try{
+      int num = int.parse(mililitrosController.text);
+      if(num > 0) {
+        connection.output.add(
+            utf8.encode("${color.red},${color.green},${color.blue},$num \n"));
+        await connection.output.allSent;
+        show('Enviado');
+        setState(() {
+          _deviceState = 1; // device on
+        });
+      }
+    }catch(e){
+      show('Ingresa la cantidad de mililitros que quieres');
+    }
+
   }
 
   void _sendOnCleanToBluetooth() async {
